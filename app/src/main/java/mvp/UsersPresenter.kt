@@ -3,7 +3,6 @@ package mvp
 import android.content.ContentValues
 import com.java.note.mvpkotlin.R
 import database.UserTable
-import model.User
 
 class UsersPresenter(private val model: UsersModel) {
 
@@ -22,11 +21,7 @@ class UsersPresenter(private val model: UsersModel) {
     }
 
     private fun loadUsers() {
-        model.loadUsers(object : UsersModel.LoadUserCallback {
-            override fun onLoad(users: List<User>) {
-                view?.showUsers(users)
-            }
-        })
+        model.loadUsers { it -> view?.showUsers(it) }
     }
 
     fun add() {
@@ -41,21 +36,17 @@ class UsersPresenter(private val model: UsersModel) {
         contentValues.put(UserTable.Column.EMAIL, userData.email)
 
         view?.showProgress()
-        model.addUser(contentValues, object : UsersModel.CompleteCallback {
-            override fun onComplete() {
-                view?.hideProgress()
-                loadUsers()
-            }
-        })
+        model.addUser(contentValues) {
+            view?.hideProgress()
+            loadUsers()
+        }
     }
 
     fun clear() {
         view?.showProgress()
-        model.clearUsers(object : UsersModel.CompleteCallback {
-            override fun onComplete() {
-                view?.hideProgress()
-                loadUsers()
-            }
-        })
+        model.clearUsers {
+            view?.hideProgress()
+            loadUsers()
+        }
     }
 }

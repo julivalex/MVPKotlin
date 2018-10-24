@@ -15,7 +15,7 @@ class UsersModel(private val dbHelper: DbHelper) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    fun loadUsers(callback: LoadUserCallback) = launch {
+    fun loadUsers(load: (List<User>) -> Unit) = launch {
         val users: LinkedList<User> = LinkedList()
         //I/O
         async(Dispatchers.IO) {
@@ -35,10 +35,10 @@ class UsersModel(private val dbHelper: DbHelper) : CoroutineScope {
         }.await()
 
         //main thread
-        callback.onLoad(users)
+        load(users)
     }
 
-    fun addUser(contentValues: ContentValues, callback: CompleteCallback) = launch {
+    fun addUser(contentValues: ContentValues, complete: () -> Unit) = launch {
         //I/O
         async(Dispatchers.IO) {
             dbHelper.writableDatabase.insert(UserTable.TABLE, null, contentValues)
@@ -46,10 +46,10 @@ class UsersModel(private val dbHelper: DbHelper) : CoroutineScope {
         }.await()
 
         //main thread
-        callback.onComplete()
+        complete()
     }
 
-    fun clearUsers(callback: CompleteCallback) = launch {
+    fun clearUsers(complete: () -> Unit) = launch {
         //I/O
         async(Dispatchers.IO) {
             dbHelper.writableDatabase.delete(UserTable.TABLE, null, null)
@@ -57,15 +57,6 @@ class UsersModel(private val dbHelper: DbHelper) : CoroutineScope {
         }.await()
 
         //main thread
-        callback.onComplete()
+        complete()
     }
-
-    interface LoadUserCallback {
-        fun onLoad(users: List<User>)
-    }
-
-    interface CompleteCallback {
-        fun onComplete()
-    }
-
 }
