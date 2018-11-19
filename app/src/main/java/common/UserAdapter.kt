@@ -32,7 +32,7 @@ class UserAdapter: RecyclerView.Adapter<UserAdapter.UserHolder>() {
         Log.d("TAG", "size  = $itemCount")
     }
 
-    class UserHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class UserHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         var userInfo: TextView = itemView.findViewById(R.id.text)
 
         fun bind(user: User) {
